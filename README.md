@@ -37,5 +37,5 @@ By automating the retrieval and calculation of crucial rates, TaxCalcBR empowers
 ### Instructions for use
 - **Clone the repository**: ```git clone https://github.com/gabrielbribeiroo/TaxCalcBR.git```
 - **Install dependencies**: Make sure you have Python installed.
-- **Run the script**: Execute the main script (finances.py) to fetch SELIC data and perform calculations.
-- **Interpret the output**: View the calculated results for financial planning and analysis.
+- **Run the script**: Execute the main script ```finances.py``` to perform calculations.
+- **Interpret the output**: View the calculated financial planning and analysis results.
