@@ -86,4 +86,7 @@ document.getElementById("calcular").addEventListener("click", () => {
   document.getElementById("rendimentoAcumulado").innerText = `Rendimentos acumulados com o parcelamento: R$${ganho.toFixed(2)}`;
   document.getElementById("resultadoParcelado").innerText = `Valor pago parcelando (descontados os rendimentos): R$${valorFinalParcelado.toFixed(2)}`;
   document.getElementById("decisao").innerText = decisao;
+
+  // Rolagem para a seção de resultados
+  document.getElementById("resultados").scrollIntoView({ behavior: "smooth" });
 });
