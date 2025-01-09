@@ -1,13 +1,34 @@
-// Mostrar ou ocultar campos adicionais
+// Verifica a resposta no campo de desconto
 document.getElementById("descontoVista").addEventListener("input", (e) => {
   const campoDesconto = document.getElementById("campoDesconto");
-  campoDesconto.style.display = e.target.value.toUpperCase() === "S" ? "block" : "none";
+  const resposta = e.target.value.toUpperCase();
+
+  // Valida a entrada
+  if (resposta === "S" || resposta === "N") {
+    campoDesconto.style.display = resposta === "S" ? "block" : "none";
+    document.getElementById("erroDesconto").innerText = ""; // Limpa o erro
+  } 
+  else {
+    document.getElementById("erroDesconto").innerText = "Resposta inválida! Tente novamente.";
+    e.target.value = ""; // Limpa o campo
+  }
 });
 
+// Verifica a resposta no campo de juros
 document.getElementById("jurosParcelado").addEventListener("input", (e) => {
   const campoJuros = document.getElementById("campoJuros");
-  campoJuros.style.display = e.target.value.toUpperCase() === "S" ? "block" : "none";
+  const resposta = e.target.value.toUpperCase();
+
+  // Valida a entrada
+  if (resposta === "S" || resposta === "N") {
+    campoJuros.style.display = resposta === "S" ? "block" : "none";
+    document.getElementById("erroJuros").innerText = ""; // Limpa o erro
+  } else {
+    document.getElementById("erroJuros").innerText = "Resposta inválida! Tente novamente.";
+    e.target.value = ""; // Limpa o campo
+  }
 });
+
 
 // Função de cálculo
 document.getElementById("calcular").addEventListener("click", () => {

@@ -20,22 +20,26 @@
         <br><br>
 
         <!-- Desconto à vista -->
-        <label for="descontoVista">Há desconto em pagar à vista? (S/N):</label>
-        <input id="descontoVista" type="text" placeholder="S ou N" maxlength="1" required>
+        <div>
+            <label for="descontoVista">Há desconto em pagar à vista? (S/N):</label>
+            <input type="text" id="descontoVista" maxlength="1" />
+            <span id="erroDesconto" style="color: red;"></span> <!-- Mensagem de erro -->
+        </div>
         <div id="campoDesconto" style="display: none;">
-            <label for="percentualDesconto">Porcentagem de desconto (%):</label>
-            <input id="percentualDesconto" type="text" placeholder="Ex.: 5">
+            <label for="percentualDesconto">Qual a porcentagem de desconto? (%)</label>
+            <input type="number" id="percentualDesconto" />
         </div>
-        <br><br>
 
-        <!-- Juros no parcelamento -->
-        <label for="jurosParcelado">Há juros em pagar parcelado? (S/N):</label>
-        <input id="jurosParcelado" type="text" placeholder="S ou N" maxlength="1" required>
-        <div id="campoJuros" style="display: none;">
-            <label for="percentualJuros">Porcentagem de juros (%):</label>
-            <input id="percentualJuros" type="text" placeholder="Ex.: 2">
+          <!-- Juros no parcelamento -->          
+        <div>
+            <label for="jurosParcelado">Há juros em pagar parcelado? (S/N):</label>
+            <input type="text" id="jurosParcelado" maxlength="1" />
+            <span id="erroJuros" style="color: red;"></span> <!-- Mensagem de erro -->
         </div>
-        <br><br>
+        <div id="campoJuros" style="display: none;">
+            <label for="percentualJuros">Qual a porcentagem de juros? (%)</label>
+            <input type="number" id="percentualJuros" />
+        </div>
 
         <!-- Parcelas -->
         <label for="parcelas">Número de parcelas:</label>
