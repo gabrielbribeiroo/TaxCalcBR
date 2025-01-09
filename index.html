@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaxCalcBR</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link do CSS -->
+</head>
+<body>
+    <h1>Simulador de Pagamento</h1>
+    <form id="formulario">
+        <!-- Taxa anual -->
+        <label for="taxaAnual">Taxa anual de rendimento (%):</label>
+        <input id="taxaAnual" type="text" placeholder="Ex.: 10,5" required>
+        <br><br>
+
+        <!-- Valor inicial -->
+        <label for="valorInicial">Valor total da compra (R$):</label>
+        <input id="valorInicial" type="text" placeholder="Ex.: 1000,00" required>
+        <br><br>
+
+        <!-- Desconto à vista -->
+        <label for="descontoVista">Há desconto em pagar à vista? (S/N):</label>
+        <input id="descontoVista" type="text" placeholder="S ou N" maxlength="1" required>
+        <div id="campoDesconto" style="display: none;">
+            <label for="percentualDesconto">Porcentagem de desconto (%):</label>
+            <input id="percentualDesconto" type="text" placeholder="Ex.: 5">
+        </div>
+        <br><br>
+
+        <!-- Juros no parcelamento -->
+        <label for="jurosParcelado">Há juros em pagar parcelado? (S/N):</label>
+        <input id="jurosParcelado" type="text" placeholder="S ou N" maxlength="1" required>
+        <div id="campoJuros" style="display: none;">
+            <label for="percentualJuros">Porcentagem de juros (%):</label>
+            <input id="percentualJuros" type="text" placeholder="Ex.: 2">
+        </div>
+        <br><br>
+
+        <!-- Parcelas -->
+        <label for="parcelas">Número de parcelas:</label>
+        <input id="parcelas" type="number" min="1" placeholder="Ex.: 12" required>
+        <br><br>
+
+        <button type="button" id="calcular">Calcular</button>
+    </form>
+
+    <h2>Resultados</h2>
+    <div id="resultados" style="display: none;">
+        <p id="resultadoVista"></p>
+        <p id="rendimentoAcumulado"></p>
+        <p id="resultadoParcelado"></p>
+        <p id="decisao"></p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
