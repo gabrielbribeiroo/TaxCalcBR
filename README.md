@@ -3,13 +3,14 @@
 ## Financial System to Calculate Interest Rate
 
 ### Description
-TaxCalcBR is a Python-based project designed to simplify retrieving and calculating Brazilian financial indices, such as the SELIC and CDI rates. 
-The tool provides automation and statistical insights to assist financial planning, investment decision-making, and economic analysis.
+TaxCalcBR is a Python-based project that simplifies retrieving and calculating Brazilian financial indices, such as the SELIC and CDI rates. 
+The tool provides automation, statistical insights, and a web-based graphical interface to assist financial planning, investment decision-making, and economic analysis.
 
 ### Features
 - **User interaction menu**: The user informs the interest, purchase, and installment rates.
 - **Compound interest**: Calculates the annualized SELIC rate using compound interest formulas.
 - **Flexible input handling**: Supports user-friendly input formats for financial data (e.g., values with commas or points).
+- **Interactive web interface**: Allows users to interact with the system through a modern, responsive graphical interface.
 
 ### System modeling
 The system processes the data to convert rates for different periods (e.g., annual to monthly) and performs cumulative calculations such as annualized returns using compound interest principles.
@@ -17,6 +18,12 @@ The system processes the data to convert rates for different periods (e.g., annu
 ### Data manipulation
 - **Data cleaning**: Ensures raw data is stripped of extraneous characters and formatted consistently.
 - **Financial calculations**: Implements formulas for accurate and reliable financial projections.
+
+### Web Interface
+The project includes a web-based graphical interface developed using HTML, CSS, and JavaScript:
+- **Dynamic inputs**: Automatically adjusts fields based on user choices (e.g., enabling/disabling discount or interest rate inputs).
+- **Real-time calculations**: Performs calculations and displays results dynamically without page reloads.
+- **Smooth navigation**: Automatically scrolls to results after calculations.
 
 ### Goals
 The main goal of TaxCalcBR is to provide a streamlined, accurate, and user-friendly platform for managing and analyzing financial indices in Brazil. 
@@ -36,6 +43,10 @@ By automating the retrieval and calculation of crucial rates, TaxCalcBR empowers
 
 ### Instructions for use
 - **Clone the repository**: ```git clone https://github.com/gabrielbribeiroo/TaxCalcBR.git```
-- **Install dependencies**: Make sure you have Python installed.
-- **Run the script**: Execute the main script ```finances.py``` to perform calculations.
-- **Interpret the output**: View the calculated financial planning and analysis results.
+- **Install dependencies**: Ensure you have Python installed.
+- **Run the script**: Execute the main script (```finances.py```) to fetch SELIC data and perform calculations.
+- **Run the web interface**:
+  1. Open the ```https://tax-calc-br.vercel.app/``` file in a web browser.
+  2. Enter the required inputs into the form.
+  3. Click "Calcular" to view the results.
+- **Interpret the output**: View calculated financial planning and analysis results.
