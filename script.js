@@ -1,92 +1,151 @@
-// Verifica a resposta no campo de desconto
-document.getElementById("descontoVista").addEventListener("input", (e) => {
-  const campoDesconto = document.getElementById("campoDesconto");
-  const resposta = e.target.value.toUpperCase();
+document.addEventListener("DOMContentLoaded", () => {
+    const comparisonType = document.getElementById("comparisonType");
+    const formContainer = document.getElementById("formContainer");
+    const resultContainer = document.getElementById("resultContainer");
+    const submitButton = document.getElementById("submitButton");
 
-  // Valida a entrada
-  if (resposta === "S" || resposta === "N") {
-    campoDesconto.style.display = resposta === "S" ? "block" : "none";
-    document.getElementById("erroDesconto").innerText = ""; // Limpa o erro
-  } 
-  else {
-    document.getElementById("erroDesconto").innerText = "Resposta inválida! Tente novamente.";
-    e.target.value = ""; // Limpa o campo
-  }
-});
+    comparisonType.addEventListener("change", () => {
+        const selectedOption = comparisonType.value;
+        renderForm(selectedOption);
+    });
 
-// Verifica a resposta no campo de juros
-document.getElementById("jurosParcelado").addEventListener("input", (e) => {
-  const campoJuros = document.getElementById("campoJuros");
-  const resposta = e.target.value.toUpperCase();
+    submitButton.addEventListener("click", () => {
+        const selectedOption = comparisonType.value;
+        const formData = getFormData();
+        let result;
 
-  // Valida a entrada
-  if (resposta === "S" || resposta === "N") {
-    campoJuros.style.display = resposta === "S" ? "block" : "none";
-    document.getElementById("erroJuros").innerText = ""; // Limpa o erro
-  } else {
-    document.getElementById("erroJuros").innerText = "Resposta inválida! Tente novamente.";
-    e.target.value = ""; // Limpa o campo
-  }
-});
+        if (selectedOption === "1") {
+            result = calculateInvestmentComparison(formData);
+        } else if (selectedOption === "2") {
+            result = calculateCashVsInstallment(formData);
+        }
 
+        displayResult(result);
+    });
 
-// Função de cálculo
-document.getElementById("calcular").addEventListener("click", () => {
-  // Captura os valores
-  const taxaAnual = parseFloat(document.getElementById("taxaAnual").value.replace(",", ".")) / 100;
-  const valorInicial = parseFloat(document.getElementById("valorInicial").value.replace(",", "."));
-  const descontoVista = document.getElementById("descontoVista").value.toUpperCase();
-  const percentualDesconto = parseFloat(document.getElementById("percentualDesconto").value || 0);
-  const jurosParcelado = document.getElementById("jurosParcelado").value.toUpperCase();
-  const percentualJuros = parseFloat(document.getElementById("percentualJuros").value || 0);
-  const parcelas = parseInt(document.getElementById("parcelas").value);
+    function renderForm(option) {
+        if (option === "1") {
+            formContainer.innerHTML = `
+                <label for="rateType">Escolha a taxa de rendimento:</label>
+                <select id="rateType">
+                    <option value="monthly">Mensal</option>
+                    <option value="annual">Anual</option>
+                </select>
+                <label for="interestRate">Taxa de rendimento (%):</label>
+                <input type="number" id="interestRate" placeholder="Ex: 5.5" />
+                <label for="totalAmount">Valor total da compra:</label>
+                <input type="number" id="totalAmount" placeholder="Ex: 1000.00" />
+                <label for="installments">Número de parcelas:</label>
+                <input type="number" id="installments" placeholder="Ex: 12" />
+                <label for="discount">Desconto para pagamento à vista (%):</label>
+                <input type="number" id="discount" placeholder="Ex: 10" />
+                <label for="interestOnInstallment">Juros no parcelamento (%):</label>
+                <input type="number" id="interestOnInstallment" placeholder="Ex: 2" />
+            `;
+        } else if (option === "2") {
+            formContainer.innerHTML = `
+                <label for="cashValue">Valor à vista:</label>
+                <input type="number" id="cashValue" placeholder="Ex: 1000.00" />
+                <label for="installmentCount">Número de parcelas:</label>
+                <input type="number" id="installmentCount" placeholder="Ex: 12" />
+                <label for="installmentValue">Valor de cada parcela:</label>
+                <input type="number" id="installmentValue" placeholder="Ex: 100.00" />
+                <label for="investmentRate">Taxa de rendimento (%):</label>
+                <input type="number" id="investmentRate" placeholder="Ex: 5" />
+            `;
+        }
+    }
 
-  // Validação de entradas
-  if (isNaN(taxaAnual) || isNaN(valorInicial) || isNaN(parcelas)) {
-      alert("Por favor, insira valores numéricos válidos.");
-      return;
-  }
+    function getFormData() {
+        const formData = {};
+        document.querySelectorAll("#formContainer input, #formContainer select").forEach(input => {
+            formData[input.id] = parseFloat(input.value) || 0;
+        });
+        return formData;
+    }
 
-  // Cálculo da taxa mensal
-  const taxaMensal = (1 + taxaAnual) ** (1 / 12) - 1;
+    function calculateInvestmentComparison(data) {
+        const { rateType, interestRate, totalAmount, installments, discount, interestOnInstallment } = data;
 
-  // Cálculo do valor à vista
-  let valorVista = valorInicial;
-  if (descontoVista === "S") {
-      valorVista -= valorInicial * (percentualDesconto / 100);
-  }
+        // Converte taxa de rendimento anual para mensal, se necessário
+        const monthlyRate = rateType === "annual"
+            ? Math.pow(1 + interestRate / 100, 1 / 12) - 1
+            : interestRate / 100;
 
-  // Cálculo do valor parcelado
-  let valorParcelado = valorInicial;
-  if (jurosParcelado === "S") {
-      valorParcelado += valorInicial * (percentualJuros / 100);
-  }
+        // Aplica imposto de renda baseado no número de parcelas
+        let adjustedRate = monthlyRate;
+        if (installments <= 6) adjustedRate *= 0.775;
+        else if (installments <= 12) adjustedRate *= 0.80;
+        else if (installments <= 24) adjustedRate *= 0.825;
+        else adjustedRate *= 0.85;
 
-  const valorParcela = valorParcelado / parcelas;
+        // Calcula desconto à vista
+        const cashPrice = totalAmount * (1 - discount / 100);
 
-  // Simulação dos rendimentos
-  let ganho = 0;
-  let total = valorParcelado;
-  for (let i = 0; i < parcelas; i++) {
-      const rendimento = total * taxaMensal;
-      ganho += rendimento;
-      total -= valorParcela;
-  }
+        // Calcula acréscimo no parcelamento
+        const installmentPrice = totalAmount * (1 + interestOnInstallment / 100);
 
-  const valorFinalParcelado = valorParcelado - ganho;
+        // Simula rendimentos
+        let gain = 0;
+        let remainingDebt = installmentPrice;
+        for (let i = 0; i < installments; i++) {
+            const interestGain = remainingDebt * adjustedRate;
+            gain += interestGain;
+            remainingDebt -= installmentPrice / installments;
+        }
 
-  // Decisão
-  const decisao = valorVista < valorFinalParcelado
-      ? "Compensa pagar à vista."
-      : "Compensa parcelar.";
+        const finalInstallmentCost = installmentPrice - gain;
 
-  // Exibição dos resultados
-  document.getElementById("resultados").style.display = "block";
-  document.getElementById("resultadoVista").innerText = `Valor pagando à vista: R$${valorVista.toFixed(2)}`;
-  document.getElementById("rendimentoAcumulado").innerText = `Rendimentos acumulados com o parcelamento: R$${ganho.toFixed(2)}`;
-  document.getElementById("resultadoParcelado").innerText = `Valor pago parcelando (descontados os rendimentos): R$${valorFinalParcelado.toFixed(2)}`;
-  document.getElementById("decisao").innerText = decisao;
+        // Resultados detalhados
+        return `
+            <p>Valor pagando à vista: R$${cashPrice.toFixed(2)}</p>
+            <p>Rendimentos acumulados com o parcelamento: R$${gain.toFixed(2)}</p>
+            <p>Valor pago parcelando (descontados os rendimentos): R$${finalInstallmentCost.toFixed(2)}</p>
+            <p>${cashPrice < finalInstallmentCost
+                ? "Compensa pagar à vista."
+                : "Compensa parcelar."}</p>
+        `;
+    }
 
-  // Rolagem para a seção de resultados
-  document.getElementById("resultados").scrollIntoView({ behavior: "smooth" });
+    function calculateCashVsInstallment(data) {
+        const { cashValue, installmentCount, installmentValue, investmentRate } = data;
+
+        const totalInstallment = installmentCount * installmentValue;
+        const monthlyRate = investmentRate / 100;
+
+        // Aplica imposto de renda baseado no número de parcelas
+        let adjustedRate = monthlyRate;
+        if (installmentCount <= 6) adjustedRate *= 0.775;
+        else if (installmentCount <= 12) adjustedRate *= 0.80;
+        else if (installmentCount <= 24) adjustedRate *= 0.825;
+        else adjustedRate *= 0.85;
+
+        // Simula rendimentos
+        let gain = 0;
+        let remainingDebt = totalInstallment;
+        for (let i = 0; i < installmentCount; i++) {
+            const interestGain = remainingDebt * adjustedRate;
+            gain += interestGain;
+            remainingDebt -= installmentValue;
+        }
+
+        const finalCost = totalInstallment - gain;
+
+        // Resultados detalhados
+        return `
+            <p>Valor pagando à vista: R$${cashValue.toFixed(2)}</p>
+            <p>Valor pagando parcelado: R$${totalInstallment.toFixed(2)}</p>
+            <p>Taxa de juros compostos por parcelar: ${(adjustedRate * 100).toFixed(2)}%</p>
+            <p>Rendimentos acumulados com o parcelamento: R$${gain.toFixed(2)}</p>
+            <p>Valor pago parcelando (descontados os rendimentos): R$${finalCost.toFixed(2)}</p>
+            <p>${cashValue < finalCost
+                ? "Compensa pagar à vista."
+                : "Compensa parcelar."}</p>
+        `;
+    }
+
+    function displayResult(result) {
+        resultContainer.style.display = "block";
+        resultContainer.innerHTML = result;
+    }
 });

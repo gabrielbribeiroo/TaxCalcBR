@@ -3,60 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaxCalcBR</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link do CSS -->
+    <title>Comparação de Pagamento</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Simulador de Pagamento</h1>
-    <form id="formulario">
-        <!-- Taxa anual -->
-        <label for="taxaAnual">Taxa anual de rendimento (%):</label>
-        <input id="taxaAnual" type="text" placeholder="Ex.: 10,5" required>
-        <br><br>
-
-        <!-- Valor inicial -->
-        <label for="valorInicial">Valor total da compra (R$):</label>
-        <input id="valorInicial" type="text" placeholder="Ex.: 1000,00" required>
-        <br><br>
-
-        <!-- Desconto à vista -->
-        <div>
-            <label for="descontoVista">Há desconto em pagar à vista? (S/N):</label>
-            <input type="text" id="descontoVista" maxlength="1" />
-            <span id="erroDesconto" style="color: red;"></span> <!-- Mensagem de erro -->
+    <header>
+        <h1>TaxCalcBR: Simulador de Pagamento</h1>
+    </header>
+    <main>
+        <section>
+            <label for="comparisonType">Escolha a comparação desejada:</label>
+            <select id="comparisonType">
+                <option value="1">Rendimento x Parcelas: Inclui taxas de juros e descontos</option>
+                <option value="2">À vista x Parcelas: Comparação entre os valores da oferta</option>
+            </select>
+        </section>
+        <div id="formContainer"></div>
+        <button id="submitButton">Calcular</button>
+        <section id="resultContainer"></section>
+    </main>
+    <footer>
+        <p>Desenvolvido para auxiliar decisões financeiras.</p>
+        <div id="author">
+            <p>Autor: Gabriel Ribeiro</p>
+            <div class="social-links">
+                <a href="https://www.github.com/gabrielbribeiroo/" target="_blank">
+                    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/github/github-original.svg" alt="GitHub" width="30" height="30">
+                </a>
+                <a href="mailto:gabrielbroliveira@gmail.com">
+                    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/google/google-original.svg" alt="Gmail" width="30" height="30">
+                </a>
+                <a href="https://www.instagram.com/gabrielbribeiroo/" target="_blank">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" style="width: 32px; height: 32px;">
+                </a>
+                <a href="https://www.linkedin.com/in/gabriel-ribeiro1000/" target="_blank">
+                    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/linkedin/linkedin-original.svg" alt="LinkedIn" width="30" height="30">
+                </a>
+            </div>
         </div>
-        <div id="campoDesconto" style="display: none;">
-            <label for="percentualDesconto">Qual a porcentagem de desconto? (%)</label>
-            <input type="number" id="percentualDesconto" />
-        </div>
-
-          <!-- Juros no parcelamento -->          
-        <div>
-            <label for="jurosParcelado">Há juros em pagar parcelado? (S/N):</label>
-            <input type="text" id="jurosParcelado" maxlength="1" />
-            <span id="erroJuros" style="color: red;"></span> <!-- Mensagem de erro -->
-        </div>
-        <div id="campoJuros" style="display: none;">
-            <label for="percentualJuros">Qual a porcentagem de juros? (%)</label>
-            <input type="number" id="percentualJuros" />
-        </div>
-
-        <!-- Parcelas -->
-        <label for="parcelas">Número de parcelas:</label>
-        <input id="parcelas" type="number" min="1" placeholder="Ex.: 12" required>
-        <br><br>
-
-        <button type="button" id="calcular">Calcular</button>
-    </form>
-
-    <h2>Resultados</h2>
-    <div id="resultados" style="display: none;">
-        <p id="resultadoVista"></p>
-        <p id="rendimentoAcumulado"></p>
-        <p id="resultadoParcelado"></p>
-        <p id="decisao"></p>
-    </div>
-
+    </footer>
     <script src="script.js"></script>
 </body>
 </html>

@@ -1,50 +1,96 @@
-body {
-    background: linear-gradient(to bottom, #eef2f3, #8e9eab);
-    font-family: 'Arial', sans-serif;
-    color: #333;
-    margin: 10;
-    padding: 10;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-h1, h2 {
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    line-height: 1.6;
+    margin: 20px;
+}
+
+header {
     text-align: center;
-    color: #2C3E50;
+    padding: 20px;
+    background-color: #4caf50;
+    color: white;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+main {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+section {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
     font-weight: bold;
 }
 
-button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+select, input, button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
     font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer;
 }
 
 button:hover {
     background-color: #45a049;
 }
 
-input {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: calc(100% - 22px);
-    margin-bottom: 15px;
-    box-sizing: border-box;
-}
-
-input:focus {
-    border-color: #4CAF50;
-    outline: none;
-}
-
-#resultados {
-    background-color: #f8f9fa;
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 10px;
+#resultContainer {
     margin-top: 20px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    background-color: #e7f3e7;
+    border: 1px solid #4caf50;
+    border-radius: 8px;
+    display: none;
+}
+
+footer {
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #4caf50;
+    color: white;
+    border-radius: 8px;
+}
+
+
+#author {
+    margin-top: 10px;
+}
+
+.social-links a {
+    margin: 0 5px;
+    text-decoration: none;
+}
+
+.social-links img {
+    height: 30px;
+    vertical-align: middle;
+    border-radius: 4px;
 }
