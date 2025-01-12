@@ -1,60 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comparador de Opções Financeiras</title>
+    <title>TaxCalcBR</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
-        <div class="logo-container">
-            <img src="logo_without_background_resized.png" alt="Logo do Sistema" class="logo">
-        </div>
-        <h1>TaxCalcBR: Simulador de Pagamentos</h1>
+        <h1>TaxCalcBR: Simulador de Pagamento</h1>
     </header>
-
     <main>
         <section>
-            <h2>Escolha a comparação desejada</h2>
-            <form id="comparison-form">
-                <label for="comparison-option">Selecione:</label>
-                <select id="comparison-option" name="comparison-option">
-                    <option value="" disabled selected>Selecione...</option>
-                    <option value="1">Rendimento x Parcelas: Inclui taxas de juros e descontos</option>
-                    <option value="2">À vista x Parcelas: Comparação entre os valores da oferta</option>
-                </select>
-
-                <div id="option-1-fields" class="hidden">
-                    <!-- Campos específicos para a opção 1 -->
-                </div>
-
-                <div id="option-2-fields" class="hidden">
-                    <!-- Campos específicos para a opção 2 -->
-                </div>
-
-                <button type="submit">Calcular</button>
-            </form>
+            <label for="comparisonType">Escolha a comparação desejada:</label>
+            <select id="comparisonType">
+                <option value="" disabled selected>Selecione...</option>
+                <option value="1">Rendimento x Parcelas: Inclui taxas de juros e descontos</option>
+                <option value="2">À vista x Parcelas: Comparação entre os valores da oferta</option>
+            </select>
         </section>
+        <div id="formContainer"></div>
+        <button id="submitButton">Calcular</button>
+        <section id="resultContainer"></section>
     </main>
-
     <footer>
-        <div class="social-links">
-            <a href="https://www.github.com/gabrielbribeiroo/" target="_blank">
-                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/github.svg" alt="GitHub">
-            </a>
-            <a href="mailto:gabrielbroliveira@gmail.com">
-                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/gmail.svg" alt="Gmail">
-            </a>
-            <a href="https://www.instagram.com/gabrielbribeiroo/" target="_blank">
-                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/instagram.svg" alt="Instagram">
-            </a>
-            <a href="https://www.linkedin.com/in/gabriel-ribeiro1000/" target="_blank">
-                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/linkedin.svg" alt="LinkedIn">
-            </a>
+        <div id="author">
+            <div class="social-links">
+                <a href="https://www.github.com/gabrielbribeiroo/" target="_blank">
+                    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/github/github-original.svg" alt="GitHub" width="30" height="30">
+                </a>
+                <a href="mailto:gabrielbroliveira@gmail.com">
+                    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/google/google-original.svg" alt="Gmail" width="30" height="30">
+                </a>
+                <a href="https://www.instagram.com/gabrielbribeiroo/" target="_blank">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" style="width: 32px; height: 32px;">
+                </a>
+                <a href="https://www.linkedin.com/in/gabriel-ribeiro1000/" target="_blank">
+                    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/linkedin/linkedin-original.svg" alt="LinkedIn" width="30" height="30">
+                </a>
+            </div>
         </div>
     </footer>
-
     <script src="script.js"></script>
 </body>
 </html>
