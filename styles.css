@@ -1,3 +1,4 @@
+/* Reset básico */
 * {
     margin: 0;
     padding: 0;
@@ -5,92 +6,97 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f4f8;
     color: #333;
-    line-height: 1.6;
-    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
-header {
-    text-align: center;
-    padding: 20px;
-    background-color: #4caf50;
-    color: white;
-    margin-bottom: 20px;
-    border-radius: 8px;
-}
-
-main {
-    max-width: 800px;
-    margin: auto;
-    padding: 20px;
+.main-container {
+    width: 100%;
+    max-width: 600px;
     background: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
 }
 
-section {
+.header {
+    text-align: center;
     margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 1.8rem;
+    color: #007bff;
+}
+
+.form-container {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
 }
 
 label {
     display: block;
-    margin-bottom: 10px;
-    font-weight: bold;
+    font-weight: 500;
+    margin-bottom: 5px;
 }
 
-select, input, button {
-    display: block;
+input, select, button {
     width: 100%;
     padding: 10px;
-    margin-bottom: 20px;
-    font-size: 16px;
-    border: 1px solid #ccc;
+    font-size: 1rem;
+    border: 1px solid #ddd;
     border-radius: 5px;
+    outline: none;
+    transition: 0.3s;
+}
+
+input:focus, select:focus {
+    border-color: #007bff;
 }
 
 button {
-    background-color: #4caf50;
-    color: white;
+    background-color: #007bff;
+    color: #fff;
+    font-weight: 700;
     border: none;
     cursor: pointer;
+    transition: 0.3s;
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #0056b3;
 }
 
-#resultContainer {
-    margin-top: 20px;
+.resultado {
     padding: 15px;
-    background-color: #e7f3e7;
-    border: 1px solid #4caf50;
+    background: #f8f9fa;
     border-radius: 8px;
-    display: none;
-}
-
-footer {
     text-align: center;
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #4caf50;
-    color: white;
-    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-
-#author {
-    margin-top: 10px;
+/* Estilo do rodapé */
+.footer {
+    width: 100%;
+    text-align: center;
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
 }
 
-.social-links a {
-    margin: 0 5px;
-    text-decoration: none;
-}
-
-.social-links img {
-    height: 30px;
-    vertical-align: middle;
-    border-radius: 4px;
+.footer p {
+    font-size: 0.9rem;
+    margin: 0;
 }
