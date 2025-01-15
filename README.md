@@ -30,12 +30,21 @@ The main goal of TaxCalcBR is to provide a streamlined, accurate, and user-frien
 By automating the retrieval and calculation of crucial rates, TaxCalcBR empowers users to make informed financial decisions with minimal effort.
 
 ### Languages and Tools
+#### 🖥 Back-end
 <div style="display: inline_block"><cbr>
   <img align = "top" alt = "gabrielbribeiroo_Python" height = "50" width = "50" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" />
   <img align = "top" alt = "gabrielbribeiroo_Jupyter" height = "50" width = "50" src="https://upload.wikimedia.org/wikipedia/commons/3/38/Jupyter_logo.svg" />
+</div>
+
+#### 🌐 Front-end
+<div style="display: inline_block"><cbr>
   <img align = "top" alt = "gabrielbribeiroo_HTML" height = "50" width = "50" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" />
   <img align = "top" alt = "gabrielbribeiroo_CSS" height = "50" width = "50" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" />
   <img align = "top" alt = "gabrielbribeiroo_JavaScript" height = "50" width = "50" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" />
+</div>
+
+#### 🔧 Development Tools
+<div style="display: inline_block"><cbr>
   <img align = "top" alt = "gabrielbribeiroo_GoogleColab" height = "50" width = "50" src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Google_Colaboratory_SVG_Logo.svg" />
   <img align = "top" alt = "gabrielbribeiroo_VSCode" height = "50" width = "50" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg" />
   <img align = "top" alt = "gabrielbribeiroo_PowerShell" height = "50" width = "50" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/powershell/powershell-original.svg" />
