@@ -1,150 +1,160 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const formSimulador = document.getElementById('form-simulador');
-    const opcaoSelect = document.getElementById('opcao');
-    const inputContainer = document.getElementById('input-container');
-    const resultadoDiv = document.getElementById('resultado');
-    const calcularButton = document.getElementById('calcular');
+// Referências aos elementos HTML
+const selectOpcao = document.getElementById("opcao");
+const calcularBtn = document.getElementById("calcular");
+const resultadoDiv = document.getElementById("resultado");
+const inputContainer = document.getElementById("input-container");
 
-    // Função para criar um campo de entrada dinâmico
-    function criarInput(labelText, id, type = 'text') {
-        const formGroup = document.createElement('div');
-        formGroup.classList.add('form-group');
+// Limpa os inputs e a área de resultados
+function limparCampos() {
+    inputContainer.innerHTML = "";
+    resultadoDiv.innerHTML = "";
+}
 
-        const label = document.createElement('label');
-        label.setAttribute('for', id);
-        label.textContent = labelText;
+// Cria dinamicamente campos de entrada de acordo com a opção escolhida
+function criarCamposParaOpcao(opcao) {
+    limparCampos();
 
-        const input = document.createElement('input');
-        input.setAttribute('type', type);
-        input.setAttribute('id', id);
-        input.required = true;
-
-        formGroup.appendChild(label);
-        formGroup.appendChild(input);
-
-        return formGroup;
+    if (opcao === "1") {
+        inputContainer.innerHTML = `
+            <label>Digite o valor total da compra (R$): <input type="number" id="valorTotal" step="0.01" required></label>
+            <label>Digite o número de parcelas: <input type="number" id="parcelas" min="1" required></label>
+            <label>Digite a taxa de rendimento mensal (%): <input type="number" id="taxaRendimento" step="0.01" required></label>
+            <label>Digite a porcentagem de desconto à vista (se houver): <input type="number" id="descontoVista" step="0.01"></label>
+            <label>Deseja considerar imposto de renda sobre os rendimentos? (S/N): 
+                <select id="considerarIR">
+                    <option value="N">Não</option>
+                    <option value="S">Sim</option>
+                </select>
+            </label>
+        `;
+    } else if (opcao === "2") {
+        inputContainer.innerHTML = `
+            <label>Digite o valor da compra à vista (R$): <input type="number" id="valorVista" step="0.01" required></label>
+            <label>Digite o número de parcelas: <input type="number" id="parcelas" min="1" required></label>
+            <label>Digite o valor de cada parcela (R$): <input type="number" id="valorParcela" step="0.01" required></label>
+            <label>Digite a taxa de rendimento mensal (%): <input type="number" id="taxaRendimento" step="0.01" required></label>
+        `;
     }
+}
 
-    // Função para rolar a tela para o resultado
-    function rolarParaResultado() {
-        resultadoDiv.scrollIntoView({ behavior: 'smooth' });
-    }
+// Adiciona evento para atualizar os campos de entrada ao selecionar uma opção
+selectOpcao.addEventListener("change", () => {
+    const opcao = selectOpcao.value;
+    criarCamposParaOpcao(opcao);
+});
 
-    // Atualiza os campos de entrada com base na opção selecionada
-    opcaoSelect.addEventListener('change', () => {
-        inputContainer.innerHTML = ''; // Limpa os campos anteriores
-        resultadoDiv.innerHTML = ''; // Limpa os resultados anteriores
-
-        if (opcaoSelect.value === '1') {
-            // Opção: Rendimento x Parcelas
-            inputContainer.appendChild(criarInput('Digite o valor total da compra (R$):', 'valor-total'));
-            inputContainer.appendChild(criarInput('Digite o número de parcelas:', 'qnt-parcelas', 'number'));
-            inputContainer.appendChild(criarInput('Digite a taxa de rendimento mensal (%):', 'taxa-rendimento', 'number'));
-            inputContainer.appendChild(criarInput('Digite a porcentagem de desconto à vista (se houver):', 'desconto-vista', 'number'));
-            inputContainer.appendChild(criarInput('Deseja considerar imposto de renda sobre os rendimentos? (S/N):', 'considera-ir'));
-        } else if (opcaoSelect.value === '2') {
-            // Opção: À vista x Parcelas
-            inputContainer.appendChild(criarInput('Digite o valor da compra à vista (R$):', 'valor-vista'));
-            inputContainer.appendChild(criarInput('Digite o número de parcelas:', 'qnt-parcelas', 'number'));
-            inputContainer.appendChild(criarInput('Digite o valor de cada parcela (R$):', 'valor-parcela', 'number'));
-            inputContainer.appendChild(criarInput('Digite a taxa de rendimento mensal (%):', 'taxa-rendimento', 'number'));
-        }
+// Função para descer a tela automaticamente
+function descerTela() {
+    window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: "smooth",
     });
+}
 
-    // Calcula os resultados com base nas entradas fornecidas
-    calcularButton.addEventListener('click', () => {
-        resultadoDiv.innerHTML = ''; // Limpa os resultados anteriores
-
-        const opcao = opcaoSelect.value;
-
-        if (opcao === '1') {
-            // Rendimento x Parcelas
-            const valorTotal = parseFloat(document.getElementById('valor-total').value);
-            const qntParcelas = parseInt(document.getElementById('qnt-parcelas').value);
-            const taxaRendimento = parseFloat(document.getElementById('taxa-rendimento').value) / 100;
-            const descontoVista = parseFloat(document.getElementById('desconto-vista').value) || 0;
-            const consideraIR = document.getElementById('considera-ir').value.trim().toUpperCase();
-
-            const valorVista = valorTotal * (1 - descontoVista / 100);
-            const valorParcela = valorTotal / qntParcelas;
-            let rendimentos = 0;
-
-            let divida = valorTotal;
-            for (let i = 1; i <= qntParcelas; i++) {
-                const rendimento = divida * taxaRendimento;
-                rendimentos += rendimento;
-                divida -= valorParcela;
-            }
-
-            if (consideraIR === 'S') {
-                const taxaIR = 0.15; // Considerando 15% de imposto de renda
-                rendimentos -= rendimentos * taxaIR;
-            }
-
-            const valorParceladoEfetivo = valorTotal - rendimentos;
-
-            // Pergunta sobre juros em caso de parcelamento
-            const temJuros = confirm('Há juros em pagar parcelado?');
-            if (temJuros) {
-                const tipoJuros = prompt('Escolha o tipo de juros: \n[1] Simples\n[2] Compostos');
-                if (tipoJuros === '1') {
-                    const juros = parseFloat(prompt('Qual a porcentagem de juros em pagar parcelado?')) / 100;
-                    valorTotal *= 1 + juros;
-                } else if (tipoJuros === '2') {
-                    const periodoJuros = prompt('Escolha o período de juros: \n[1] Diário\n[2] Mensal\n[3] Anual');
-                    let jurosMensais;
-                    if (periodoJuros === '1') {
-                        const jurosDiarios = parseFloat(prompt('Qual a porcentagem de juros ao dia (a.d.)?')) / 100;
-                        jurosMensais = (1 + jurosDiarios) ** 30 - 1;
-                    } else if (periodoJuros === '2') {
-                        jurosMensais = parseFloat(prompt('Qual a porcentagem de juros ao mês (a.m.)?')) / 100;
-                    } else {
-                        const jurosAnuais = parseFloat(prompt('Qual a porcentagem de juros ao ano (a.a.)?')) / 100;
-                        jurosMensais = (1 + jurosAnuais) ** (1 / 12) - 1;
-                    }
-                    valorTotal *= (1 + jurosMensais) ** qntParcelas;
-                }
-            }
-
-            resultadoDiv.innerHTML = `
-                <p>Valor pagando à vista: R$ ${valorVista.toFixed(2)}</p>
-                <p>Valor total parcelado: R$ ${valorTotal.toFixed(2)}</p>
-                <p>Rendimentos acumulados (após imposto de renda, se aplicável): R$ ${rendimentos.toFixed(2)}</p>
-                <p>Valor efetivo parcelado (descontados rendimentos): R$ ${valorParceladoEfetivo.toFixed(2)}</p>
-                <p><strong>${valorVista < valorParceladoEfetivo ? 'Compensa pagar à vista.' : 'Compensa parcelar.'}</strong></p>
-            `;
-
-            rolarParaResultado(); // Rola a tela para o resultado
-        } else if (opcao === '2') {
-            // À vista x Parcelas
-            const valorVista = parseFloat(document.getElementById('valor-vista').value);
-            const qntParcelas = parseInt(document.getElementById('qnt-parcelas').value);
-            const valorParcela = parseFloat(document.getElementById('valor-parcela').value);
-            const taxaRendimento = parseFloat(document.getElementById('taxa-rendimento').value) / 100;
-
-            const valorParcelado = qntParcelas * valorParcela;
-            let rendimentos = 0;
-
-            let divida = valorParcelado;
-            for (let i = 1; i <= qntParcelas; i++) {
-                const rendimento = divida * taxaRendimento;
-                rendimentos += rendimento;
-                divida -= valorParcela;
-            }
-
-            const valorParceladoEfetivo = valorParcelado - rendimentos;
-
-            resultadoDiv.innerHTML = `
-                <p>Valor pagando à vista: R$ ${valorVista.toFixed(2)}</p>
-                <p>Valor total parcelado: R$ ${valorParcelado.toFixed(2)}</p>
-                <p>Rendimentos acumulados: R$ ${rendimentos.toFixed(2)}</p>
-                <p>Valor efetivo parcelado (descontados rendimentos): R$ ${valorParceladoEfetivo.toFixed(2)}</p>
-                <p><strong>${valorVista < valorParceladoEfetivo ? 'Compensa pagar à vista.' : 'Compensa parcelar.'}</strong></p>
-            `;
-
-            rolarParaResultado(); // Rola a tela para o resultado
+// Função para ajustar a taxa de rendimento considerando o IR
+function ajustarTaxaParaIR(taxa, qntParcelas, considerarIR) {
+    if (considerarIR === "S") {
+        if (qntParcelas <= 6) {
+            return taxa * 0.775;
+        } else if (qntParcelas <= 12) {
+            return taxa * 0.80;
+        } else if (qntParcelas <= 24) {
+            return taxa * 0.825;
         } else {
-            resultadoDiv.innerHTML = '<p>Por favor, selecione uma opção válida.</p>';
+            return taxa * 0.85;
         }
-    });
+    }
+    return taxa;
+}
+
+// Adiciona evento ao botão "Calcular"
+calcularBtn.addEventListener("click", () => {
+    const opcao = selectOpcao.value;
+    resultadoDiv.innerHTML = ""; // Limpa resultados anteriores
+
+    if (opcao === "0") {
+        resultadoDiv.innerHTML = `<p class="error">Por favor, selecione uma opção válida.</p>`;
+        descerTela();
+        return;
+    }
+
+    // Coleta os valores inseridos pelo usuário
+    const valorTotal = parseFloat(document.getElementById("valorTotal")?.value || 0);
+    const valorVista = parseFloat(document.getElementById("valorVista")?.value || 0);
+    const parcelas = parseInt(document.getElementById("parcelas")?.value || 0);
+    const taxaRendimento = parseFloat(document.getElementById("taxaRendimento")?.value || 0) / 100;
+    const descontoVista = parseFloat(document.getElementById("descontoVista")?.value || 0) / 100;
+    const considerarIR = document.getElementById("considerarIR")?.value || "N";
+    const valorParcela = parseFloat(document.getElementById("valorParcela")?.value || 0);
+
+    let resultado = "";
+
+    if (opcao === "1") {
+        if (!valorTotal || !parcelas || !taxaRendimento) {
+            resultadoDiv.innerHTML = `<p class="error">Por favor, preencha todos os campos necessários.</p>`;
+            descerTela();
+            return;
+        }
+
+        let taxaAjustada = ajustarTaxaParaIR(taxaRendimento, parcelas, considerarIR);
+        let valorVistaFinal = valorTotal * (1 - descontoVista);
+
+        const temJuros = prompt("Há juros em pagar parcelado? [S/N]").trim().toUpperCase();
+        let valorParceladoTotal = valorTotal;
+
+        if (temJuros === "S") {
+            const tipoJuros = prompt("Escolha o tipo de juros:\n1 - Simples\n2 - Compostos").trim();
+
+            if (tipoJuros === "1") {
+                const jurosSimples = parseFloat(prompt("Qual a porcentagem de juros em pagar parcelado?")) / 100;
+                valorParceladoTotal = valorTotal * (1 + jurosSimples);
+            } else if (tipoJuros === "2") {
+                const jurosMensais = parseFloat(prompt("Qual a porcentagem de juros ao mês (a.m.)?")) / 100;
+                valorParceladoTotal = valorTotal * (1 + jurosMensais) ** parcelas;
+            }
+        }
+
+        const rendimento = ((valorParceladoTotal / parcelas) * parcelas * taxaAjustada);
+        const valorFinalParcelado = valorParceladoTotal - rendimento;
+
+        resultado = `
+            <p>Valor total à vista (com desconto): R$ ${valorVistaFinal.toFixed(2)}</p>
+            <p>Valor total parcelado: R$ ${valorParceladoTotal.toFixed(2)}</p>
+            <p>Rendimentos acumulados: R$ ${rendimento.toFixed(2)}</p>
+            <p>Valor pago parcelado (com rendimento): R$ ${valorFinalParcelado.toFixed(2)}</p>
+        `;
+
+        if (valorVistaFinal < valorFinalParcelado) {
+            resultado += `<p>Compensa pagar à vista.</p>`;
+        } else {
+            resultado += `<p>Compensa parcelar.</p>`;
+        }
+    } else if (opcao === "2") {
+        if (!valorVista || !parcelas || !valorParcela || !taxaRendimento) {
+            resultadoDiv.innerHTML = `<p class="error">Por favor, preencha todos os campos necessários.</p>`;
+            descerTela();
+            return;
+        }
+
+        const valorTotalParcelado = parcelas * valorParcela;
+        let taxaAjustada = ajustarTaxaParaIR(taxaRendimento, parcelas, considerarIR);
+        const rendimento = ((valorParcela * parcelas) * taxaAjustada);
+        const valorFinalParcelado = valorTotalParcelado - rendimento;
+
+        resultado = `
+            <p>Valor pagando à vista: R$ ${valorVista.toFixed(2)}</p>
+            <p>Valor total parcelado: R$ ${valorTotalParcelado.toFixed(2)}</p>
+            <p>Rendimentos acumulados: R$ ${rendimento.toFixed(2)}</p>
+            <p>Valor pago parcelando (descontados os rendimentos): R$ ${valorFinalParcelado.toFixed(2)}</p>
+        `;
+
+        if (valorVista < valorFinalParcelado) {
+            resultado += `<p>Compensa pagar à vista.</p>`;
+        } else {
+            resultado += `<p>Compensa parcelar.</p>`;
+        }
+    }
+
+    resultadoDiv.innerHTML = resultado;
+    descerTela();
 });
