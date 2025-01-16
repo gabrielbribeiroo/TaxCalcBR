@@ -67,6 +67,21 @@ function ajustarTaxaParaIR(taxa, qntParcelas, considerarIR) {
     return taxa;
 }
 
+// Função para calcular rendimentos utilizando juros compostos
+function calcularRendimento(parcelas, valorParcela, taxaMensal) {
+    let saldo = 0; // Saldo acumulado
+    let rendimentoTotal = 0; // Rendimento total acumulado
+
+    for (let mes = 1; mes <= parcelas; mes++) {
+        saldo += valorParcela; // Adiciona a parcela ao saldo
+        const rendimento = saldo * taxaMensal; // Calcula rendimento mensal
+        rendimentoTotal += rendimento; // Acumula rendimento
+        saldo += rendimento; // Atualiza saldo com rendimento
+    }
+
+    return rendimentoTotal;
+}
+
 // Adiciona evento ao botão "Calcular"
 calcularBtn.addEventListener("click", () => {
     const opcao = selectOpcao.value;
@@ -96,39 +111,22 @@ calcularBtn.addEventListener("click", () => {
             return;
         }
 
-        let taxaAjustada = ajustarTaxaParaIR(taxaRendimento, parcelas, considerarIR);
-        let valorVistaFinal = valorTotal * (1 - descontoVista);
+        const taxaAjustada = ajustarTaxaParaIR(taxaRendimento, parcelas, considerarIR);
+        const valorVistaFinal = valorTotal * (1 - descontoVista);
 
-        const temJuros = prompt("Há juros em pagar parcelado? [S/N]").trim().toUpperCase();
-        let valorParceladoTotal = valorTotal;
-
-        if (temJuros === "S") {
-            const tipoJuros = prompt("Escolha o tipo de juros:\n1 - Simples\n2 - Compostos").trim();
-
-            if (tipoJuros === "1") {
-                const jurosSimples = parseFloat(prompt("Qual a porcentagem de juros em pagar parcelado?")) / 100;
-                valorParceladoTotal = valorTotal * (1 + jurosSimples);
-            } else if (tipoJuros === "2") {
-                const jurosMensais = parseFloat(prompt("Qual a porcentagem de juros ao mês (a.m.)?")) / 100;
-                valorParceladoTotal = valorTotal * (1 + jurosMensais) ** parcelas;
-            }
-        }
-
-        const rendimento = ((valorParceladoTotal / parcelas) * parcelas * taxaAjustada);
-        const valorFinalParcelado = valorParceladoTotal - rendimento;
+        const rendimento = calcularRendimento(parcelas, valorTotal / parcelas, taxaAjustada);
+        const valorFinalParcelado = valorTotal - rendimento;
 
         resultado = `
             <p>Valor total à vista (com desconto): R$ ${valorVistaFinal.toFixed(2)}</p>
-            <p>Valor total parcelado: R$ ${valorParceladoTotal.toFixed(2)}</p>
+            <p>Valor total parcelado: R$ ${valorTotal.toFixed(2)}</p>
             <p>Rendimentos acumulados: R$ ${rendimento.toFixed(2)}</p>
             <p>Valor pago parcelado (com rendimento): R$ ${valorFinalParcelado.toFixed(2)}</p>
         `;
 
-        if (valorVistaFinal < valorFinalParcelado) {
-            resultado += `<p>Compensa pagar à vista.</p>`;
-        } else {
-            resultado += `<p>Compensa parcelar.</p>`;
-        }
+        resultado += valorVistaFinal < valorFinalParcelado
+            ? `<p>Compensa pagar à vista.</p>`
+            : `<p>Compensa parcelar.</p>`;
     } else if (opcao === "2") {
         if (!valorVista || !parcelas || !valorParcela || !taxaRendimento) {
             resultadoDiv.innerHTML = `<p class="error">Por favor, preencha todos os campos necessários.</p>`;
@@ -137,8 +135,9 @@ calcularBtn.addEventListener("click", () => {
         }
 
         const valorTotalParcelado = parcelas * valorParcela;
-        let taxaAjustada = ajustarTaxaParaIR(taxaRendimento, parcelas, considerarIR);
-        const rendimento = ((valorParcela * parcelas) * taxaAjustada);
+        const taxaAjustada = ajustarTaxaParaIR(taxaRendimento, parcelas, considerarIR);
+
+        const rendimento = calcularRendimento(parcelas, valorParcela, taxaAjustada);
         const valorFinalParcelado = valorTotalParcelado - rendimento;
 
         resultado = `
@@ -148,11 +147,9 @@ calcularBtn.addEventListener("click", () => {
             <p>Valor pago parcelando (descontados os rendimentos): R$ ${valorFinalParcelado.toFixed(2)}</p>
         `;
 
-        if (valorVista < valorFinalParcelado) {
-            resultado += `<p>Compensa pagar à vista.</p>`;
-        } else {
-            resultado += `<p>Compensa parcelar.</p>`;
-        }
+        resultado += valorVista < valorFinalParcelado
+            ? `<p>Compensa pagar à vista.</p>`
+            : `<p>Compensa parcelar.</p>`;
     }
 
     resultadoDiv.innerHTML = resultado;
