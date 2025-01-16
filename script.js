@@ -33,6 +33,12 @@ function criarCamposParaOpcao(opcao) {
             <label>Digite o número de parcelas: <input type="number" id="parcelas" min="1" required></label>
             <label>Digite o valor de cada parcela (R$): <input type="number" id="valorParcela" step="0.01" required></label>
             <label>Digite a taxa de rendimento mensal (%): <input type="number" id="taxaRendimento" step="0.01" required></label>
+            <label>Deseja considerar imposto de renda sobre os rendimentos? (S/N): 
+                <select id="considerarIR">
+                    <option value="N">Não</option>
+                    <option value="S">Sim</option>
+                </select>
+            </label>
         `;
     }
 }
