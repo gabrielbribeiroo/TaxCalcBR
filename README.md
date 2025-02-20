@@ -48,6 +48,9 @@ The primary goal of TaxCalcBR is to offer a streamlined, accurate, and user-frie
   <img align="top" alt="PowerShell" height="50" width="50" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/powershell/powershell-original.svg" />
 </div>
 
+### License
+This project is licensed under the MIT License. See the LICENSE file for more details.
+
 ### Instructions for use
 - **Clone the repository**: ```git clone https://github.com/gabrielbribeiroo/TaxCalcBR.git```
 - **Install dependencies**: Ensure you have Python/Jupyter installed.
