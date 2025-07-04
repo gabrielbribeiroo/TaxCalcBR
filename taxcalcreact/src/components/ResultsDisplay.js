@@ -11,7 +11,7 @@ const ResultsDisplay = ({ results }) => {
     }, [results]);
 
     // Exibe um placeholder se não houver resultados
-    if (!results) {
+    if (results === null) { // Altere de !results para results === null para lidar com string vazia vs null
         return (
             <section id="resultado" className="resultado" ref={resultRef}>
                 <p className="placeholder-text">Os resultados da sua simulação aparecerão aqui.</p>
@@ -19,7 +19,7 @@ const ResultsDisplay = ({ results }) => {
         );
     }
 
-    // Usa dangerouslySetInnerHTML para renderizar o HTML gerado pelas funções de cálculo.
+    // Se `results` for uma string (HTML), renderize-a.
     // Em um projeto React ideal, a tabela seria construída com JSX, mas para compatibilidade
     // com a sua lógica JS existente, esta é a forma mais direta de traduzir.
     return (
