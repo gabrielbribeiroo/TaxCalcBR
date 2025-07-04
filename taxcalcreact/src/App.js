@@ -4,7 +4,7 @@ import CalculatorForm from './components/CalculatorForm';
 import ResultsDisplay from './components/ResultsDisplay';
 import Footer from './components/Footer';
 import useFetchRates from './hooks/useFetchRates';
-import './styles.css';
+import './App.css';
 
 function App() {
     // Estado principal do aplicativo
