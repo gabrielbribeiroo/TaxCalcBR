@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DynamicInputs from './DynamicInputs';
-import * as Calc from '../utils/financialCalculations'; // Importa todas as funções de cálculo
+import * as Calc from '../utils/financialCalculation'; // Importa todas as funções de cálculo
 
 const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, setResults }) => {
     // Estado interno para os inputs do formulário
