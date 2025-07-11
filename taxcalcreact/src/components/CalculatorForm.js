@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import DynamicInputs from './DynamicInputs';
-import * as Calc from '../utils/financialCalculation'; // Importa todas as funções de cálculo
+import * as Calc from '../utils/financialCalculations'; // Importa todas as funções de cálculo
 
 const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, setResults }) => {
     // Estado interno para os inputs do formulário
     const [formInputs, setFormInputs] = useState({});
-    const [isJurosVisible, setIsJurosVisible] = useState(false);
+    const [isJurosVisible, setIsJurosVisible] = useState(false); // Para controlar a visibilidade dos juros na Opção 1
 
     // Limpa o estado dos inputs quando a opção principal muda
     useEffect(() => {
         setFormInputs({});
+        setIsJurosVisible(false); // Reseta a visibilidade dos juros
     }, [selectedOption]);
 
+    // Lida com a mudança em qualquer input do formulário
     const handleInputChange = (event) => {
         const { id, value, type, checked } = event.target;
         setFormInputs(prevInputs => ({
@@ -72,29 +74,21 @@ const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, s
     // Elas leem do estado do formulário e usam as funções do módulo `financialCalculations`.
 
     function calculateOption1(inputs, selicRate, ipcaRate) {
-        const valorTotal = parseFloat(inputs.valorTotal);
-        const parcelas = parseInt(inputs.parcelas);
-        const descontoVista = parseFloat(inputs.descontoVista) / 100 || 0;
+        const valorTotal = Calc.getNumericInputValue(inputs, "valorTotal");
+        const parcelas = Calc.getIntInputValue(inputs, "parcelas");
+        const descontoVista = Calc.getNumericInputValue(inputs, "descontoVista") / 100 || 0;
         const temJurosParcelado = inputs.temJurosParcelado === 'S';
-        const tipoTaxa = inputs.rendimentoTipoTaxa;
-        const valorTaxa = parseFloat(inputs.rendimentoValorTaxa);
-        const considerarIR = inputs.rendimentoConsiderarIR === 'S';
         
         let valorVista = valorTotal * (1 - descontoVista);
         let valorParceladoComJuros = valorTotal;
 
         if (temJurosParcelado) {
             const tipoJurosParcelado = inputs.tipoJurosParcelado;
-            const taxaJurosParcelado = parseFloat(inputs.taxaJurosParcelado) / 100;
+            const taxaJurosParcelado = Calc.getNumericInputValue(inputs, "taxaJurosParcelado") / 100;
             valorParceladoComJuros = Calc.calcularValorParceladoComJuros(valorTotal, parcelas, taxaJurosParcelado, tipoJurosParcelado);
         }
 
-        const valorParcela = valorParceladoComJuros / parcelas;
-        const taxaRendimentoAjustada = Calc.ajustarTaxaParaIR(
-            Calc.getConvertedMonthlyRate(tipoTaxa, valorTaxa, selicRate, ipcaRate, inputs.rendimentoIndiceBase),
-            parcelas,
-            considerarIR ? 'S' : 'N'
-        );
+        const { taxaMensal: taxaRendimentoAjustada, considerarIR: irConsiderado } = getAdjustedYieldRateFromInputs('rendimento', inputs, parcelas, selicRate, ipcaRate);
 
         const { ganho: rendimentosAcumulados, simulacaoDetalhada } = Calc.simularRendimento(parcelas, valorParcela, taxaRendimentoAjustada);
         const valorEfetivoParcelado = valorParceladoComJuros - rendimentosAcumulados;
@@ -104,7 +98,7 @@ const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, s
             <p>Valor total da compra: R$ ${valorTotal.toFixed(2)}</p>
             <p>Valor pagando à vista (com desconto): R$ ${valorVista.toFixed(2)}</p>
             <p>Valor pagando parcelado (com juros, se houver): R$ ${valorParceladoComJuros.toFixed(2)}</p>
-            <p>Taxa de rendimento utilizada (após IR${considerarIR ? ' SIM' : ' NÃO'}): ${(taxaRendimentoAjustada * 100).toFixed(4)}% ao mês</p>
+            <p>Taxa de rendimento utilizada (após IR${irConsiderado === 'S' ? ' SIM' : ' NÃO'}): ${(taxaRendimentoAjustada * 100).toFixed(4)}% ao mês</p>
             <p>Rendimentos acumulados (se investir o que não foi gasto à vista): R$ ${rendimentosAcumulados.toFixed(2)}</p>
             <p>Valor efetivo pago parcelando (descontando rendimentos): R$ ${valorEfetivoParcelado.toFixed(2)}</p>
             ${simulacaoDetalhada}
@@ -113,19 +107,13 @@ const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, s
     }
 
     function calculateOption2(inputs, selicRate, ipcaRate) {
-        const valorVista = parseFloat(inputs.valorVista);
-        const parcelas = parseInt(inputs.parcelas);
-        const valorParcela = parseFloat(inputs.valorParcela);
-        const tipoTaxa = inputs.rendimentoTipoTaxa;
-        const valorTaxa = parseFloat(inputs.rendimentoValorTaxa);
-        const considerarIR = inputs.rendimentoConsiderarIR === 'S';
+        const valorVista = Calc.getNumericInputValue(inputs, "valorVista");
+        const parcelas = Calc.getIntInputValue(inputs, "parcelas");
+        const valorParcela = Calc.getNumericInputValue(inputs, "valorParcela");
         
         const totalParcelado = parcelas * valorParcela;
-        const taxaRendimentoAjustada = Calc.ajustarTaxaParaIR(
-            Calc.getConvertedMonthlyRate(tipoTaxa, valorTaxa, selicRate, ipcaRate, inputs.rendimentoIndiceBase),
-            parcelas,
-            considerarIR ? 'S' : 'N'
-        );
+        const { taxaMensal: taxaRendimentoAjustada, considerarIR: irConsiderado } = getAdjustedYieldRateFromInputs('rendimento', inputs, parcelas, selicRate, ipcaRate);
+
         const { ganho: rendimentosAcumulados, simulacaoDetalhada } = Calc.simularRendimento(parcelas, valorParcela, taxaRendimentoAjustada);
         const valorEfetivoParcelado = totalParcelado - rendimentosAcumulados;
 
@@ -133,7 +121,7 @@ const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, s
             <h3>[2] À Vista vs. Parcelas:</h3>
             <p>Valor pagando à vista: R$ ${valorVista.toFixed(2)}</p>
             <p>Valor pagando parcelado: R$ ${totalParcelado.toFixed(2)}</p>
-            <p>Taxa de rendimento utilizada (após IR${considerarIR ? ' SIM' : ' NÃO'}): ${(taxaRendimentoAjustada * 100).toFixed(4)}% ao mês</p>
+            <p>Taxa de rendimento utilizada (após IR${irConsiderado === 'S' ? ' SIM' : ' NÃO'}): ${(taxaRendimentoAjustada * 100).toFixed(4)}% ao mês</p>
             <p>Rendimentos acumulados (se investir o que não foi gasto à vista): R$ ${rendimentosAcumulados.toFixed(2)}</p>
             <p>Valor efetivo pago parcelando (descontando rendimentos): R$ ${valorEfetivoParcelado.toFixed(2)}</p>
             ${simulacaoDetalhada}
@@ -142,20 +130,13 @@ const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, s
     }
     
     function calculateOption3(inputs, selicRate, ipcaRate) {
-        const entrada = parseFloat(inputs.entrada);
-        const parcelas = parseInt(inputs.parcelas);
-        const valorParcela = parseFloat(inputs.valorParcela);
-        const valorVista = parseFloat(inputs.valorVista);
+        const entrada = Calc.getNumericInputValue(inputs, "entrada");
+        const parcelas = Calc.getIntInputValue(inputs, "parcelas");
+        const valorParcela = Calc.getNumericInputValue(inputs, "valorParcela");
+        const valorVista = Calc.getNumericInputValue(inputs, "valorVista");
         const totalParcelado = entrada + parcelas * valorParcela;
-        const tipoTaxa = inputs.rendimentoTipoTaxa;
-        const valorTaxa = parseFloat(inputs.rendimentoValorTaxa);
-        const considerarIR = inputs.rendimentoConsiderarIR === 'S';
-        
-        const taxaRendimentoAjustada = Calc.ajustarTaxaParaIR(
-            Calc.getConvertedMonthlyRate(tipoTaxa, valorTaxa, selicRate, ipcaRate, inputs.rendimentoIndiceBase),
-            parcelas,
-            considerarIR ? 'S' : 'N'
-        );
+
+        const { taxaMensal: taxaRendimentoAjustada, considerarIR: irConsiderado } = getAdjustedYieldRateFromInputs('rendimento', inputs, parcelas, selicRate, ipcaRate);
         
         let saldoInvestimento = valorVista;
         let rendimentoTotalAcumulado = 0;
@@ -169,7 +150,7 @@ const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, s
             rendimentoTotalAcumulado += rendimentoMes;
             
             let valorPagoNoMes = valorParcela;
-            if (i === 1) {
+            if (i === 1) { // A entrada é paga no mês 1
                 valorPagoNoMes += entrada;
             }
             saldoInvestimento -= valorPagoNoMes;
@@ -187,7 +168,7 @@ const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, s
             <p>Número de parcelas: ${parcelas}</p>
             <p>Total nominal parcelado (entrada + parcelas): R$ ${totalParcelado.toFixed(2)}</p>
             <p>Valor da compra à vista: R$ ${valorVista.toFixed(2)}</p>
-            <p>Taxa de rendimento utilizada (após IR${considerarIR ? ' SIM' : ' NÃO'}): ${(taxaRendimentoAjustada * 100).toFixed(4)}% ao mês</p>
+            <p>Taxa de rendimento utilizada (após IR${irConsiderado === 'S' ? ' SIM' : ' NÃO'}): ${(taxaRendimentoAjustada * 100).toFixed(4)}% ao mês</p>
             <p>Rendimento total gerado pelo investimento do valor à vista: R$ ${rendimentoTotalAcumulado.toFixed(2)}</p>
             <p>Saldo final do investimento (após pagar entrada e parcelas): R$ ${saldoInvestimento.toFixed(2)}</p>
             <p>Custo efetivo do parcelamento com entrada (considerando rendimentos): R$ ${valorEfetivoParceladoComEntrada.toFixed(2)}</p>
@@ -197,12 +178,14 @@ const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, s
     }
 
     function calculateOption4(inputs) {
-        const parcelas1 = parseInt(inputs.parcelas1);
-        const valorParcela1 = parseFloat(inputs.valorParcela1);
-        const parcelas2 = parseInt(inputs.parcelas2);
-        const valorParcela2 = parseFloat(inputs.valorParcela2);
+        const parcelas1 = Calc.getIntInputValue(inputs, "parcelas1");
+        const valorParcela1 = Calc.getNumericInputValue(inputs, "valorParcela1");
+        const parcelas2 = Calc.getIntInputValue(inputs, "parcelas2");
+        const valorParcela2 = Calc.getNumericInputValue(inputs, "valorParcela2");
+
         const total1 = parcelas1 * valorParcela1;
         const total2 = parcelas2 * valorParcela2;
+
         return `
             <h3>[4] Comparar Duas Opções de Parcelamento:</h3>
             <p>Total da primeira opção: R$ ${total1.toFixed(2)}</p>
@@ -212,11 +195,13 @@ const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, s
     }
 
     function calculateOption5(inputs) {
-        const valorParcelaOriginal = parseFloat(inputs.valorParcelaOriginal);
-        const diasAtraso = parseInt(inputs.diasAtraso);
-        const multa = parseFloat(inputs.multa) / 100;
-        const jurosDiarios = parseFloat(inputs.jurosDiarios) / 100;
+        const valorParcelaOriginal = Calc.getNumericInputValue(inputs, "valorParcelaOriginal");
+        const diasAtraso = Calc.getIntInputValue(inputs, "diasAtraso");
+        const multa = Calc.getNumericInputValue(inputs, "multa") / 100;
+        const jurosDiarios = Calc.getNumericInputValue(inputs, "jurosDiarios") / 100;
+
         const valorCorrigido = valorParcelaOriginal * (1 + multa + jurosDiarios * diasAtraso);
+
         return `
             <h3>[5] Impacto de Atrasos em Parcelas:</h3>
             <p>Valor com atraso: R$ ${valorCorrigido.toFixed(2)}</p>
@@ -224,17 +209,18 @@ const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, s
     }
     
     function calculateOption6(inputs, selicRate, ipcaRate) {
-        const parcelas = parseInt(inputs.parcelas);
-        const valorParcela = parseFloat(inputs.valorParcela);
-        const tipoTaxa = inputs.inflacaoTipoTaxa;
-        const valorTaxa = parseFloat(inputs.inflacaoValorTaxa);
+        const parcelas = Calc.getIntInputValue(inputs, "parcelas");
+        const valorParcela = Calc.getNumericInputValue(inputs, "valorParcela");
         
-        const inflacaoMensalAjustada = Calc.getConvertedMonthlyRate(tipoTaxa, valorTaxa, selicRate, ipcaRate, inputs.inflacaoIndiceBase);
-        
+        // Para inflação, a função getAdjustedYieldRate com prefixo 'inflacao'
+        // já retorna a taxa mensal que queremos usar como taxa de desconto/inflação.
+        const { taxaMensal: inflacaoMensalAjustada } = getAdjustedYieldRateFromInputs('inflacao', inputs, parcelas, selicRate, ipcaRate);
+
         let valorTotalInflacao = 0;
         for (let i = 1; i <= parcelas; i++) {
             valorTotalInflacao += valorParcela / Math.pow(1 + inflacaoMensalAjustada, i);
         }
+
         return `
             <h3>[6] Simulação com Inflação:</h3>
             <p>Valor de cada parcela: R$ ${valorParcela.toFixed(2)}</p>
@@ -245,28 +231,30 @@ const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, s
     }
     
     function calculateOption7(inputs, selicRate, ipcaRate) {
-        const valorVista = parseFloat(inputs.valorVista);
-        const parcelas = parseInt(inputs.parcelas);
-        const valorParcela = parseFloat(inputs.valorParcela);
-        const tipoTaxa = inputs.investimentoTipoTaxa;
-        const valorTaxa = parseFloat(inputs.investimentoValorTaxa);
-        const considerarIR = inputs.investimentoConsiderarIR === 'S';
+        const valorVista = Calc.getNumericInputValue(inputs, "valorVista");
+        const parcelas = Calc.getIntInputValue(inputs, "parcelas");
+        const valorParcela = Calc.getNumericInputValue(inputs, "valorParcela");
         
-        const taxaInvestimentoAjustada = Calc.ajustarTaxaParaIR(
-            Calc.getConvertedMonthlyRate(tipoTaxa, valorTaxa, selicRate, ipcaRate, inputs.investimentoIndiceBase),
-            parcelas,
-            considerarIR ? 'S' : 'N'
-        );
+        const { taxaMensal: taxaInvestimentoAjustada, considerarIR: irConsiderado } = getAdjustedYieldRateFromInputs('investimento', inputs, parcelas, selicRate, ipcaRate);
 
         let saldoInvestimento = valorVista;
+
         let tabelaDetalhada = '<p>Detalhes do Investimento:</p><table><thead><tr><th>Mês</th><th>Saldo Inicial (R$)</th><th>Rendimento (R$)</th><th>Parcela Paga (R$)</th><th>Saldo Final (R$)</th></tr></thead><tbody>';
 
         for (let i = 1; i <= parcelas; i++) {
             const rendimento = saldoInvestimento * taxaInvestimentoAjustada;
             const saldoInicialMes = saldoInvestimento;
+            
             saldoInvestimento += rendimento;
             saldoInvestimento -= valorParcela;
-            tabelaDetalhada += `<tr><td>${i}</td><td>${saldoInicialMes.toFixed(2)}</td><td>${rendimento.toFixed(2)}</td><td>${valorParcela.toFixed(2)}</td><td>${saldoInvestimento.toFixed(2)}</td></tr>`;
+
+            tabelaDetalhada += `<tr>
+                <td>${i}</td>
+                <td>${saldoInicialMes.toFixed(2)}</td>
+                <td>${rendimento.toFixed(2)}</td>
+                <td>${valorParcela.toFixed(2)}</td>
+                <td>${saldoInvestimento.toFixed(2)}</td>
+            </tr>`;
         }
         tabelaDetalhada += '</tbody></table>';
 
@@ -275,12 +263,39 @@ const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, s
             <p>Valor da compra à vista: R$ ${valorVista.toFixed(2)}</p>
             <p>Valor de cada parcela: R$ ${valorParcela.toFixed(2)}</p>
             <p>Número de parcelas: ${parcelas}</p>
-            <p>Taxa de investimento utilizada (após IR${considerarIR ? ' SIM' : ' NÃO'}): ${(taxaInvestimentoAjustada * 100).toFixed(4)}% ao mês</p>
+            <p>Taxa de investimento utilizada (após IR${irConsiderado === 'S' ? ' SIM' : ' NÃO'}): ${(taxaInvestimentoAjustada * 100).toFixed(4)}% ao mês</p>
             <p>Saldo final se você investir o valor à vista e pagar em parcelas: R$ ${saldoInvestimento.toFixed(2)}</p>
             ${tabelaDetalhada}
             <strong>${saldoInvestimento > 0 ? "Investir e parcelar é vantajoso (você termina com dinheiro extra)." : "Pagar à vista é mais seguro (evita dívidas ou perdas)."}</strong>
         `;
     }
+
+    /**
+     * Helper para obter a taxa de rendimento convertida e ajustada para IR,
+     * lendo os valores do objeto `inputs` do formulário.
+     * @param {string} prefix - O prefixo dos IDs dos campos de taxa ('rendimento', 'inflacao', 'investimento').
+     * @param {object} inputs - O objeto `formInputs` do estado do componente.
+     * @param {number} numMeses - O número total de meses/parcelas.
+     * @param {number} selicRate - A taxa SELIC atual.
+     * @param {number} ipcaRate - A taxa IPCA atual.
+     * @returns {{taxaMensal: number, considerarIR: string}} Objeto com a taxa mensal ajustada e se IR foi considerado ('S' ou 'N').
+     */
+    function getAdjustedYieldRateFromInputs(prefix, inputs, numMeses, selicRate, ipcaRate) {
+        const tipoTaxa = inputs[`${prefix}TipoTaxa`];
+        const valorTaxa = inputs[`${prefix}ValorTaxa`];
+        const considerarIR = inputs[`${prefix}ConsiderarIR`] || 'N'; // Default 'N' se não houver ou não for selecionado
+
+        let indiceBase = '';
+        if (tipoTaxa === 'indice-percentual') {
+            indiceBase = inputs[`${prefix}IndiceBase`];
+        }
+
+        let taxaMensalDecimal = Calc.getConvertedMonthlyRate(tipoTaxa, valorTaxa, selicRate, ipcaRate, indiceBase);
+        taxaMensalDecimal = Calc.ajustarTaxaParaIR(taxaMensalDecimal, numMeses, considerarIR);
+
+        return { taxaMensal: taxaMensalDecimal, considerarIR: considerarIR };
+    }
+
 
     return (
         <form id="form-simulador">
