@@ -1,29 +1,25 @@
-import React, { useEffect, useState, useCallback } from 'react'; // Adicionado useCallback
-import * as Calc from '../utils/financialCalculations';
+import React, { useEffect, useState, useCallback } from 'react';
+import * as Calc from '../utils/financialCalculations'; // Importar Calc aqui também
 
 const YieldRateInputs = ({ idPrefix, titleContext, showIRSelect, selicRate, ipcaRate, onInputChange, formInputs }) => {
     const tipoTaxaId = `${idPrefix}TipoTaxa`;
     const valorTaxaId = `${idPrefix}ValorTaxa`;
-    const taxaInfoTextId = `${idPrefix}TaxaInfoText`;
-    const indiceBaseGroupId = `${idPrefix}IndiceBaseGroup`;
+    // Removidas as declarações de taxaInfoTextId e indiceBaseGroupId, pois não são mais usadas como variáveis diretas
     const indiceBaseId = `${idPrefix}IndiceBase`;
     const considerarIRId = `${idPrefix}ConsiderarIR`;
 
     const selectedTipoTaxa = formInputs[tipoTaxaId] || 'custom-anual';
     const selectedIndiceBase = formInputs[indiceBaseId] || 'cdi';
     
-    // Valor atual do input, que é controlado pelo formInputs do componente pai
     const currentInputValue = formInputs[valorTaxaId] !== undefined ? String(formInputs[valorTaxaId]) : '';
 
-    // Estados locais para controlar o readOnly e o texto de informação
     const [isValorTaxaReadOnly, setIsValorTaxaReadOnly] = useState(false);
-    const [taxaInfoTextContent, setTaxaInfoTextContent] = useState('');
+    const [taxaInfoTextContent, setTaxaInfoTextContent] = useState(''); // Estado para o texto informativo
 
-    // Função que recalcula o readOnly, infoText e o valor automático
     const updateDisplayLogic = useCallback(() => {
         let newIsReadOnly = false;
         let newInfoText = '';
-        let automaticValueToSet = ''; // Valor que o input deveria ter se fosse automático
+        let automaticValueToSet = '';
 
         switch (selectedTipoTaxa) {
             case 'selic':
@@ -63,26 +59,23 @@ const YieldRateInputs = ({ idPrefix, titleContext, showIRSelect, selicRate, ipca
         }
 
         setIsValorTaxaReadOnly(newIsReadOnly);
-        setTaxaInfoTextContent(newInfoText);
+        setTaxaInfoTextContent(newInfoText); // Atualiza o estado do texto informativo
 
-        // Se o campo for readOnly, garanta que o valor automático é salvo no estado do pai.
-        // Isso é feito apenas se o valor no estado do pai for diferente do valor automático
-        // (para evitar loops infinitos ou sobrescrever o que o usuário digita em campos editáveis).
+        // Preenche o input do pai se for readOnly e o valor for diferente
         if (newIsReadOnly && currentInputValue !== automaticValueToSet) {
              onInputChange({ target: { id: valorTaxaId, value: automaticValueToSet, type: 'number' } });
         } else if (!newIsReadOnly && currentInputValue === '') {
-            // Para campos customizados e vazios, preencha com o valor padrão inicial, se houver
+            // Para customizados, se estiver vazio no estado, mas tiver um valor padrão inicial, preencha.
             const defaultInitialValue = (idPrefix === 'inflacao' ? '0.5' : '');
             if (defaultInitialValue !== '' && currentInputValue !== defaultInitialValue) {
                  onInputChange({ target: { id: valorTaxaId, value: defaultInitialValue, type: 'number' } });
             }
         }
-    }, [selectedTipoTaxa, selectedIndiceBase, selicRate, ipcaRate, onInputChange, currentInputValue, valorTaxaId, idPrefix]); // Dependências do useCallback
+    }, [selectedTipoTaxa, selectedIndiceBase, selicRate, ipcaRate, onInputChange, currentInputValue, valorTaxaId, idPrefix]);
 
-    // Chama a lógica de display sempre que as dependências mudam
     useEffect(() => {
         updateDisplayLogic();
-    }, [updateDisplayLogic]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [updateDisplayLogic]);
 
 
     return (
@@ -109,7 +102,7 @@ const YieldRateInputs = ({ idPrefix, titleContext, showIRSelect, selicRate, ipca
                 </select>
             </div>
             {selectedTipoTaxa === 'indice-percentual' && (
-                <div className="form-group"> {/* Removido id=${indiceBaseGroupId} pois não é necessário manipular diretamente */}
+                <div className="form-group">
                     <label htmlFor={indiceBaseId}>Índice Base:</label>
                     <select id={indiceBaseId} onChange={onInputChange} value={selectedIndiceBase}>
                         <option value="cdi">CDI</option>
@@ -132,10 +125,11 @@ const YieldRateInputs = ({ idPrefix, titleContext, showIRSelect, selicRate, ipca
                     readOnly={isValorTaxaReadOnly}
                     required
                 />
+                {/* A small tag agora usa o estado `taxaInfoTextContent` */}
                 {taxaInfoTextContent && <small className="taxa-info-text">{taxaInfoTextContent}</small>}
             </div>
             {showIRSelect && (
-                <div className="form-group"> {/* Removido id={`${idPrefix}ConsiderarIRGroup`} */}
+                <div className="form-group">
                     <label htmlFor={considerarIRId}>Considerar Imposto de Renda (IR) sobre o rendimento?</label>
                     <select id={considerarIRId} onChange={onInputChange} value={formInputs[considerarIRId] || 'N'}>
                         <option value="N">Não</option>
