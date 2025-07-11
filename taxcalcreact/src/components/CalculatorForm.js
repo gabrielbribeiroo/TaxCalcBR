@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import DynamicInputs from './DynamicInputs';
-import * as Calc from '../utils/financialCalculations'; // Importa todas as funções de cálculo
+// Importa *TODAS* as funções de financialCalculations.js usando um alias 'Calc'
+import * as Calc from '../utils/financialCalculation'; 
+
+import YieldRateInputs from './YieldRateInputs';
+
 
 const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, setResults }) => {
     // Estado interno para os inputs do formulário
@@ -90,13 +93,14 @@ const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, s
      * @returns {{taxaMensal: number, considerarIR: string}} Objeto com a taxa mensal ajustada e se IR foi considerado ('S' ou 'N').
      */
     function getAdjustedYieldRateFromInputs(prefix, inputs, numMeses, selicRate, ipcaRate) {
-        const tipoTaxa = Calc.getStringSelectValue(inputs, `${prefix}TipoTaxa`); // Usando helper do Calc
-        const valorTaxa = Calc.getNumericInputValue(inputs, `${prefix}ValorTaxa`); // Usando helper do Calc
-        const considerarIR = Calc.getStringSelectValue(inputs, `${prefix}ConsiderarIR`); // Usando helper do Calc
+        // Agora usando os helpers importados de Calc.
+        const tipoTaxa = Calc.getStringSelectValue(inputs, `${prefix}TipoTaxa`);
+        const valorTaxa = Calc.getNumericInputValue(inputs, `${prefix}ValorTaxa`);
+        const considerarIR = Calc.getStringSelectValue(inputs, `${prefix}ConsiderarIR`);
 
         let indiceBase = '';
         if (tipoTaxa === 'indice-percentual') {
-            indiceBase = Calc.getStringSelectValue(inputs, `${prefix}IndiceBase`); // Usando helper do Calc
+            indiceBase = Calc.getStringSelectValue(inputs, `${prefix}IndiceBase`);
         }
 
         let taxaMensalDecimal = Calc.getConvertedMonthlyRate(tipoTaxa, valorTaxa, selicRate, ipcaRate, indiceBase);
@@ -107,13 +111,10 @@ const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, s
 
 
     // --- Funções de Cálculo Específicas para Cada Opção ---
-    // Elas usam os helpers Calc.getNumericInputValue e Calc.getIntInputValue
-    // para ler os valores do `formInputs` de forma segura.
 
     function calculateOption1(inputs, selicRate, ipcaRate) {
         const valorTotal = Calc.getNumericInputValue(inputs, "valorTotal");
         const parcelas = Calc.getIntInputValue(inputs, "parcelas");
-        // Desconto pode ser opcional, usa 0 se não preenchido
         const descontoVista = Calc.getNumericInputValue(inputs, "descontoVista", false) / 100 || 0;
         const temJurosParcelado = inputs.temJurosParcelado === 'S';
         
@@ -122,12 +123,11 @@ const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, s
 
         if (temJurosParcelado) {
             const tipoJurosParcelado = inputs.tipoJurosParcelado;
-            // Adaptação: Se a opção tem juros, taxaJurosParcelado é obrigatório
             const taxaJurosParcelado = Calc.getNumericInputValue(inputs, "taxaJurosParcelado") / 100;
             valorParceladoComJuros = Calc.calcularValorParceladoComJuros(valorTotal, parcelas, taxaJurosParcelado, tipoJurosParcelado);
         }
 
-        const valorParcelaCalculada = valorParceladoComJuros / parcelas; // Linha corrigida para usar valorParcelaCalculada
+        const valorParcelaCalculada = valorParceladoComJuros / parcelas; 
         const { taxaMensal: taxaRendimentoAjustada, considerarIR: irConsiderado } = getAdjustedYieldRateFromInputs('rendimento', inputs, parcelas, selicRate, ipcaRate);
 
         const { ganho: rendimentosAcumulados, simulacaoDetalhada } = Calc.simularRendimento(parcelas, valorParcelaCalculada, taxaRendimentoAjustada);
@@ -334,7 +334,7 @@ const CalculatorForm = ({ selectedOption, onOptionChange, selicRate, ipcaRate, s
                 </div>
             </fieldset>
 
-            <DynamicInputs 
+            <YieldRateInputs 
                 selectedOption={selectedOption} 
                 onInputChange={handleInputChange} 
                 formInputs={formInputs}
