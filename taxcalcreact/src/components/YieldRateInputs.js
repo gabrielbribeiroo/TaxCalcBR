@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import * as Calc from '../utils/financialCalculations'; // Importar Calc aqui também
+import * as Calc from '../utils/financialCalculation'; // Importar Calc aqui também
 
 const YieldRateInputs = ({ idPrefix, titleContext, showIRSelect, selicRate, ipcaRate, onInputChange, formInputs }) => {
     const tipoTaxaId = `${idPrefix}TipoTaxa`;
