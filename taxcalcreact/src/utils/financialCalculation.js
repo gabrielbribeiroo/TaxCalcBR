@@ -1,4 +1,9 @@
 /**
+ * Funções puras para cálculos financeiros.
+ * Não têm dependência de React ou do DOM.
+ */
+
+/**
  * Ajusta a taxa de rendimento (mensal) com base nas alíquotas de Imposto de Renda.
  * @param {number} taxaMensal - Taxa de rendimento mensal original (decimal).
  * @param {number} meses - Quantidade de meses de aplicação/parcelas (para determinar a alíquota de IR).
@@ -47,7 +52,7 @@ export function simularRendimento(qnt_parcelas, valor_parcela, taxa_mensal) {
     for (let i = 1; i <= qnt_parcelas; i++) {
         let rendimentoMensal = capitalInvestidoInicial * taxa_mensal;
         ganho += rendimentoMensal;
-        simulacaoDetalhada += `<tr><td>${i}</td><td>${capitalInvestidoInicial.toFixed(2)}</td><td>${rendimentoMensal.toFixed(2)}</td></tr>`;
+        simulacaoDetalhada += `<tr><td>${i}</td><td>${capitalInvestidoInicial.toFixed(2)}</td><td>${rendimentoMensal.toFixed(2)}</td></td></tr>`; // Corrigido td fechamento aqui
         capitalInvestidoInicial -= valor_parcela;
     }
     simulacaoDetalhada += '</tbody></table>';
@@ -83,12 +88,12 @@ export function getConvertedMonthlyRate(tipoTaxa, valorTaxaInput, selicAtual, ip
             break;
         case 'ipca':
             if (ipcaAtual === null) throw new Error("Taxa IPCA não carregada. Tente novamente.");
-            taxaAnualDecimal = ipcaAtual / 100;
+            taxaAnualDecimal = ipcaAtual / 100; // IPCA é acumulado em 12 meses, então já é uma taxa anualizada.
             taxaMensalDecimal = Math.pow(1 + taxaAnualDecimal, 1/12) - 1;
             break;
         case 'cdi':
             if (selicAtual === null) throw new Error("Taxa SELIC (para CDI) não carregada. Tente novamente.");
-            taxaAnualDecimal = (selicAtual - 0.1) / 100;
+            taxaAnualDecimal = (selicAtual - 0.1) / 100; // CDI geralmente 0.1% abaixo da SELIC meta anual.
             taxaMensalDecimal = Math.pow(1 + taxaAnualDecimal, 1/12) - 1;
             break;
         case 'indice-percentual':
@@ -105,6 +110,7 @@ export function getConvertedMonthlyRate(tipoTaxa, valorTaxaInput, selicAtual, ip
             } else {
                 throw new Error("Índice base para 'Índice + Percentual' não especificado ou inválido.");
             }
+            // Calcula a taxa anual do investimento como (percentual_informado_pelo_usuario / 100) * taxa_base_anual
             taxaAnualDecimal = (valorTaxaInput / 100) * taxaBaseAnual;
             taxaMensalDecimal = Math.pow(1 + taxaAnualDecimal, 1/12) - 1;
             break;
