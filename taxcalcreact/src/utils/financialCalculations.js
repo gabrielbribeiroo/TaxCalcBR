@@ -16,6 +16,8 @@ export function getNumericInputValue(inputs, id, required = true) {
     if (value === undefined || value === null || value === "") {
         if (required) {
             // Tenta obter o nome do campo de forma mais robusta (fallback para ID)
+            // Nota: Esta parte ainda acessa o DOM. Em uma aplicação React purista,
+            // as mensagens de erro seriam definidas por um schema ou mapa no próprio componente.
             const labelElement = document.querySelector(`label[for="${id}"]`) || document.getElementById(id)?.closest('.form-group')?.querySelector('label');
             const fieldName = labelElement ? labelElement.textContent.replace(':', '').trim() : id;
             throw new Error(`O campo "${fieldName}" é obrigatório.`);
@@ -63,18 +65,12 @@ export function getIntInputValue(inputs, id, required = true) {
  * @param {object} inputs - O objeto de estado `formInputs`.
  * @param {string} id - O ID do campo select.
  * @returns {string} O valor do select.
- * @throws {Error} Se o campo não for encontrado ou estiver vazio (se for obrigatório).
  */
 export function getStringSelectValue(inputs, id) {
     const value = inputs[id];
-    // Em selects, geralmente não é undefined se o HTML tem default, mas é bom verificar
-    if (value === undefined || value === null || value === '') {
-        // Pode-se optar por lançar um erro ou retornar um valor padrão como '' ou null
-        // Para selects, geralmente há um valor padrão ou a validação ocorre de outra forma.
-        // Se este select for *requerido*, o getNumericInputValue ou getIntInputValue já teriam lançado erro.
-        return ''; // Retorna string vazia ou um default apropriado
-    }
-    return String(value);
+    // Em selects, o valor padrão pode ser 'N' ou 'custom-anual', etc.
+    // Se o valor for undefined ou null, retorna string vazia para fallback seguro.
+    return value === undefined || value === null ? '' : String(value);
 }
 
 
@@ -152,8 +148,6 @@ export function getConvertedMonthlyRate(tipoTaxa, valorTaxaInput, selicAtual, ip
     // Para tipos que esperam um valor numérico do usuário, validar se é NaN
     if (isNaN(rawValue) && (tipoTaxa.startsWith('custom-') || tipoTaxa === 'indice-percentual' || tipoTaxa === 'inflacao')) {
         // Tenta encontrar o label associado ao valorTaxaInput para uma mensagem mais amigável
-        // Nota: Em um componente React, este `document.querySelector` seria menos ideal, mas aqui
-        // ele serve para pegar o nome do campo se o erro for lançado da camada de cálculo.
         const labelElement = document.querySelector(`label[for*="ValorTaxa"]`)?.textContent.replace(':', '').trim() || "Taxa de Rendimento/Inflação";
         throw new Error(`O valor do campo "${labelElement}" não pode ser vazio para o tipo selecionado.`);
     }
