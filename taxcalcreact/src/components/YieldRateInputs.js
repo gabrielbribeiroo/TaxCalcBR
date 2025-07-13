@@ -9,38 +9,39 @@ const YieldRateInputs = ({ idPrefix, titleContext, showIRSelect, selicRate, ipca
     const indiceBaseId = `${idPrefix}IndiceBase`;
     const considerarIRId = `${idPrefix}ConsiderarIR`;
 
-    const selectedTipoTaxa = formInputs[tipoTaxaId] || 'custom-anual'; // Valor padrão
-    const selectedIndiceBase = formInputs[indiceBaseId] || 'cdi'; // Valor padrão
+    const selectedTipoTaxa = formInputs[tipoTaxaId] || 'custom-anual';
+    const selectedIndiceBase = formInputs[indiceBaseId] || 'cdi';
     
-    // O valor do input é controlado pelo formInputs, sem estado local duplicado para currentInputValue
+    // Valor atual do input, que é controlado pelo formInputs do componente pai
     const currentInputValueFromState = formInputs[valorTaxaId] !== undefined ? String(formInputs[valorTaxaId]) : '';
 
-    // Estados locais para controlar readOnly e o texto de informação
+    // Estados locais para controlar readOnly, o texto de informação e o valor calculado automaticamente
     const [isValorTaxaReadOnly, setIsValorTaxaReadOnly] = useState(false);
     const [taxaInfoTextContent, setTaxaInfoTextContent] = useState('');
+    const [calculatedAutomaticValue, setCalculatedAutomaticValue] = useState(''); // NOVO estado para valor automático calculado
 
     // Função que recalcula o readOnly, infoText e o valor automático
     const updateDisplayLogic = useCallback(() => {
         let newIsReadOnly = false;
         let newInfoText = '';
-        let automaticValueToSet = ''; // Valor que o input deveria ter se fosse automático
+        let newAutomaticValue = ''; // Valor que o input deveria ter se fosse automático
 
         switch (selectedTipoTaxa) {
             case 'selic':
                 newIsReadOnly = true;
                 newInfoText = `SELIC atual: ${selicRate !== null ? selicRate.toFixed(2) : 'Carregando...'}% ao ano.`;
-                automaticValueToSet = selicRate !== null ? selicRate.toFixed(2) : '';
+                newAutomaticValue = selicRate !== null ? selicRate.toFixed(2) : '';
                 break;
             case 'ipca':
                 newIsReadOnly = true;
                 newInfoText = `IPCA acumulado (12 meses): ${ipcaRate !== null ? ipcaRate.toFixed(2) : 'Carregando...'}%.`;
-                automaticValueToSet = ipcaRate !== null ? ipcaRate.toFixed(2) : '';
+                newAutomaticValue = ipcaRate !== null ? ipcaRate.toFixed(2) : '';
                 break;
             case 'cdi':
                 const cdiRate = selicRate !== null ? (selicRate - 0.1) : null;
                 newIsReadOnly = true;
                 newInfoText = `CDI estimado: ${cdiRate !== null ? cdiRate.toFixed(2) : 'Carregando...'}% ao ano (SELIC - 0.1%).`;
-                automaticValueToSet = cdiRate !== null ? cdiRate.toFixed(2) : '';
+                newAutomaticValue = cdiRate !== null ? cdiRate.toFixed(2) : '';
                 break;
             case 'indice-percentual':
                 newIsReadOnly = false;
@@ -64,18 +65,18 @@ const YieldRateInputs = ({ idPrefix, titleContext, showIRSelect, selicRate, ipca
 
         setIsValorTaxaReadOnly(newIsReadOnly);
         setTaxaInfoTextContent(newInfoText);
+        setCalculatedAutomaticValue(newAutomaticValue); // Atualiza o NOVO estado para o valor automático
 
         // Se o campo for readOnly, e o valor atual no estado do pai for diferente do automático,
         // force a atualização do estado do pai com o valor automático.
         // Isso evita que o usuário possa digitar em um campo que deveria ser automático.
-        if (newIsReadOnly && currentInputValueFromState !== automaticValueToSet) {
-             onInputChange({ target: { id: valorTaxaId, value: automaticValueToSet, type: 'number' } });
+        if (newIsReadOnly && currentInputValueFromState !== newAutomaticValue) {
+             onInputChange({ target: { id: valorTaxaId, value: newAutomaticValue, type: 'number' } });
         } else if (!newIsReadOnly && currentInputValueFromState === '') {
             // Para campos customizados e vazios no estado, pode-se preencher com um valor padrão inicial se houver.
-            // Aqui, deixamos vazio para o usuário digitar, a menos que seja inflacao.
             const defaultInitialValue = (idPrefix === 'inflacao' ? '0.5' : '');
             if (defaultInitialValue !== '' && currentInputValueFromState !== defaultInitialValue) {
-                onInputChange({ target: { id: valorTaxaId, value: defaultInitialValue, type: 'number' } });
+                 onInputChange({ target: { id: valorTaxaId, value: defaultInitialValue, type: 'number' } });
             }
         }
         
@@ -129,7 +130,7 @@ const YieldRateInputs = ({ idPrefix, titleContext, showIRSelect, selicRate, ipca
                     step="0.01"
                     min="0"
                     placeholder={selectedTipoTaxa === 'inflacao' ? 'Ex: 0.5 (mensal)' : 'Ex: 10.5 (anual)'}
-                    value={isValorTaxaReadOnly ? (calculatedValorTaxa || '') : currentInputValueFromState} // Usa o valor do estado pai para inputs editáveis, senão o calculado
+                    value={isValorTaxaReadOnly ? (calculatedAutomaticValue || '') : currentInputValueFromState} // Usa o valor do estado para editáveis, senão o automático
                     onChange={onInputChange}
                     readOnly={isValorTaxaReadOnly}
                     required
