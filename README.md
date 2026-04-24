@@ -49,7 +49,7 @@ The primary goal of TaxCalcBR is to offer a streamlined, accurate, and user-frie
 </div>
 
 ### License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+This project is licensed under the [MIT License](LICENSE).
 
 ### Instructions for use
 - **Clone the repository**: ```git clone https://github.com/gabrielbribeiroo/TaxCalcBR.git```
